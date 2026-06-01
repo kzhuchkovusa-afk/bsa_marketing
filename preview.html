@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bridgeview — Device Preview</title>
+<!--
+  Local device preview. Loads ./index.html inside a frame with a
+  Desktop / Mobile toggle. Open this after serving the folder, e.g.:
+      python3 -m http.server 8000   ->   http://localhost:8000/preview.html
+  The toggle is pure CSS (works without JavaScript).
+-->
+<style>
+  :root{ --navy:#18294F; --gold:#F5BE1E; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0c1430;color:#eef1f8}
+  .app{display:flex;flex-direction:column;height:100vh;min-height:600px}
+  .sw{position:absolute;width:0;height:0;opacity:0;pointer-events:none}
+  .toolbar{display:flex;align-items:center;gap:16px;padding:12px 18px;background:#101a3c;
+           border-bottom:1px solid rgba(255,255,255,.09);flex:none;flex-wrap:wrap}
+  .ttl{font-weight:800;letter-spacing:-.01em;font-size:15px}
+  .ttl b{color:var(--gold)}
+  .seg{display:inline-flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+       border-radius:999px;padding:4px}
+  .seg label{cursor:pointer;user-select:none;font-weight:700;font-size:13.5px;padding:9px 18px;
+             border-radius:999px;color:#aeb8d8;display:inline-flex;align-items:center;gap:7px;
+             transition:background .18s,color .18s}
+  .seg label:hover{color:#fff}
+  #dev-desk:checked ~ .toolbar label[for="dev-desk"],
+  #dev-mob:checked  ~ .toolbar label[for="dev-mob"]{background:var(--gold);color:var(--navy)}
+  .hint{margin-left:auto;font-size:12px;color:#8a95bd}
+  .stage{flex:1;min-height:0;overflow:auto;display:flex;justify-content:center;align-items:flex-start;
+         padding:24px 18px 40px;background:
+         radial-gradient(900px 500px at 50% -10%, rgba(245,190,30,.10), transparent 70%), #0c1430}
+  .device{position:relative;transition:width .28s cubic-bezier(.2,.7,.3,1);width:min(100%,1180px)}
+  .device iframe{width:100%;border:0;display:block;background:#fff}
+  .notch{display:none}
+  #dev-desk:checked ~ .stage .device{width:min(100%,1180px)}
+  #dev-desk:checked ~ .stage .device iframe{height:74vh;min-height:560px;border-radius:12px;
+       border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 70px rgba(0,0,0,.45)}
+  #dev-mob:checked ~ .stage .device{width:392px;max-width:100%;padding:14px;background:#0a0a0f;
+       border-radius:46px;border:1px solid #2b2b35;box-shadow:0 26px 70px rgba(0,0,0,.55)}
+  #dev-mob:checked ~ .stage .device iframe{height:76vh;min-height:560px;border-radius:32px}
+  #dev-mob:checked ~ .stage .device .notch{display:block;position:absolute;top:14px;left:50%;
+       transform:translateX(-50%);width:128px;height:24px;background:#0a0a0f;border-radius:0 0 16px 16px;z-index:3}
+</style></head>
+<body>
+<div class="app">
+  <input class="sw" type="radio" name="dev" id="dev-desk" checked>
+  <input class="sw" type="radio" name="dev" id="dev-mob">
+  <div class="toolbar">
+    <span class="ttl">Bridgeview <b>Soccer Academy</b> — preview</span>
+    <div class="seg" role="tablist">
+      <label for="dev-desk">🖥 Desktop</label>
+      <label for="dev-mob">📱 Mobile</label>
+    </div>
+    <span class="hint">scroll inside the frame · switch view with the buttons</span>
+  </div>
+  <div class="stage">
+    <div class="device">
+      <div class="notch"></div>
+      <iframe title="Bridgeview landing" src="index.html" loading="eager"></iframe>
+    </div>
+  </div>
+</div>
+</body></html>

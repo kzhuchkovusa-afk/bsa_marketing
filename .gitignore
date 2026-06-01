@@ -1,0 +1,21 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+
+# Node (only if you later add tooling)
+node_modules/
+npm-debug.log*
+
+# Local server / build artifacts
+dist/
+.cache/
