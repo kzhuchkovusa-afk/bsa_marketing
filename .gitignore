@@ -19,3 +19,9 @@ npm-debug.log*
 # Local server / build artifacts
 dist/
 .cache/
+
+# Secrets / env — never commit the Kommo token (set it in Netlify env vars)
+.env
+.env.*
+!.env.example
+.netlify/

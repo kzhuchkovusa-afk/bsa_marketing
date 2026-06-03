@@ -1,0 +1,14 @@
+# Netlify configuration for the Bridgeview Soccer Academy landing.
+# Static site (no build step); serverless functions live in netlify/functions.
+
+[build]
+  publish = "."
+  command = ""
+  functions = "netlify/functions"
+
+[build.environment]
+  # Node 20 gives a stable global fetch() inside functions.
+  NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"

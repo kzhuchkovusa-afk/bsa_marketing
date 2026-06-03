@@ -2133,6 +2133,25 @@ img, svg, video, picture { max-width: 100%; height: auto; }
       // Fire Facebook Pixel "Lead" if the pixel is installed on the page.
       if (window.fbq) { try { window.fbq("track", "Lead"); } catch (e) {} }
 
+      function fieldVal(n) { var el = form.querySelector('input[name="' + n + '"]'); return el ? el.value.trim() : ""; }
+
+      // Primary: push the lead to Kommo CRM via the Netlify Function.
+      if (window.fetch) {
+        fetch("/.netlify/functions/kommo-lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: inName ? inName.value.trim() : "",
+            phone: inPhone ? inPhone.value.trim() : "",
+            email: inEmail ? inEmail.value.trim() : "",
+            age: fieldVal("age"),
+            experience: fieldVal("experience"),
+            location: fieldVal("location")
+          })
+        }).catch(function () {}); // fire-and-forget; success screen never depends on it
+      }
+
+      // Backup: store the same submission in Netlify Forms, then show success.
       var settle = showSuccess;
       var isNetlify = form.getAttribute("data-netlify") === "true";
       if (isNetlify && window.fetch) {

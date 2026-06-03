@@ -90,17 +90,30 @@ purely client-side engagement and is not re-submitted to the CRM.
 2. Add an email notification: **Site configuration → Forms → Form notifications →
    Email notification** so leads also land in an inbox immediately.
 
-**Getting the leads into Kommo (CRM):** Netlify Forms collects the lead but does not
-push to Kommo on its own — bridge it with a no-code automation:
+**Getting the leads into Kommo (CRM):** done directly via a Netlify Function —
+`netlify/functions/kommo-lead.js`. On submit the quiz POSTs the lead as JSON to
+`/.netlify/functions/kommo-lead`, which:
 
-- **Make.com / Zapier:** trigger = "New form submission" (Netlify) → action =
-  "Create lead / contact" (Kommo). Map `name`, `phone`, `email`, `child_age`,
-  `sport_experience` to the Kommo fields.
-- **Or** an **outgoing webhook** (Site configuration → Forms → Form notifications →
-  Outgoing webhook) pointed at a Kommo-compatible endpoint.
+1. creates a **Contact** (name, phone, email);
+2. creates a **Lead** in pipeline `10044839` / status "New lead" `77725931`,
+   responsible user `12327415`, tagged `Landing Quiz`, with custom fields
+   Age (text), Soccer Experience (enum), Location (enum) and Source = "Website lead";
+3. attaches a human-readable **note** with the full questionnaire.
 
-> Alternative (any host, no Netlify): change `finish()` in `index.html` to `fetch`
-> POST straight to a Kommo incoming web-form / webhook URL instead of `"/"`.
+Error handling: retries once on HTTP 429; on 5xx/network errors it still returns
+`200` so the visitor sees the success screen, and the same submission is kept in
+**Netlify Forms** as a backup (the quiz posts to both in parallel).
+
+**Required setup — Netlify env var (the only secret):**
+
+```
+KOMMO_TOKEN = <long-lived Kommo API token>
+```
+
+Set it in **Netlify → Site settings → Environment variables**. It is read only on
+the server (`process.env.KOMMO_TOKEN`) and is never exposed to the browser. All
+other Kommo IDs are non-secret and hardcoded in the function. See `.env.example`.
+Functions run on Node 20 (configured in `netlify.toml`); no npm dependencies.
 
 - No analytics / pixel installed yet (Google Analytics, Meta Pixel).
 
