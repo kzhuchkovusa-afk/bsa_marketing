@@ -1477,7 +1477,14 @@ img, svg, video, picture { max-width: 100%; height: auto; }
     </div>
 
     <!-- QUIZ -->
-    <div class="quiz reveal">
+    <form class="quiz reveal" name="evaluation-booking" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/">
+      <!-- Netlify Forms: required hidden field so submissions are attributed to this form -->
+      <input type="hidden" name="form-name" value="evaluation-booking">
+      <!-- Quiz answers (filled by JS from the selected options before submit) -->
+      <input type="hidden" name="child_age" value="">
+      <input type="hidden" name="sport_experience" value="">
+      <!-- Honeypot: hidden from humans, catches bots -->
+      <p style="display:none"><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
       <div class="quiz-progress">
         <div class="bar"><i></i></div>
         <span class="step-label">Step 1 of 3</span>
@@ -1486,7 +1493,7 @@ img, svg, video, picture { max-width: 100%; height: auto; }
       <!-- Step 1 -->
       <div class="quiz-step active" data-autoadvance="1">
         <div class="q">How old is your child?</div>
-        <div class="opt-grid cols-2">
+        <div class="opt-grid cols-2" data-field="child_age">
           <button type="button" class="opt"><span class="radio"></span> 2–4 years</button>
           <button type="button" class="opt"><span class="radio"></span> 5–7 years</button>
           <button type="button" class="opt"><span class="radio"></span> 8–11 years</button>
@@ -1500,7 +1507,7 @@ img, svg, video, picture { max-width: 100%; height: auto; }
       <!-- Step 2 -->
       <div class="quiz-step" data-autoadvance="1">
         <div class="q">Has your child tried any sport before?</div>
-        <div class="opt-grid">
+        <div class="opt-grid" data-field="sport_experience">
           <button type="button" class="opt"><span class="radio"></span> No, this would be the first time</button>
           <button type="button" class="opt"><span class="radio"></span> Yes, a little</button>
           <button type="button" class="opt"><span class="radio"></span> Yes, plays regularly</button>
@@ -1516,16 +1523,16 @@ img, svg, video, picture { max-width: 100%; height: auto; }
         <div class="q">Where should we reach you?</div>
         <div class="field">
           <label>Your name <span class="req">*</span></label>
-          <input type="text" required="" placeholder="First name" autocomplete="given-name">
+          <input type="text" name="name" required="" placeholder="First name" autocomplete="given-name">
         </div>
         <div class="field">
           <label>Phone <span class="req">*</span></label>
-          <input type="tel" required="" placeholder="+1 (___) ___-____" autocomplete="tel">
+          <input type="tel" name="phone" required="" placeholder="+1 (___) ___-____" autocomplete="tel">
           <span class="hint">WhatsApp preferred — that's how the coach will reach you.</span>
         </div>
         <div class="field">
           <label>Email <span class="req">*</span></label>
-          <input type="email" required="" placeholder="you@email.com" autocomplete="email">
+          <input type="email" name="email" required="" placeholder="you@email.com" autocomplete="email">
         </div>
         <div class="quiz-nav">
           <button type="button" class="quiz-back" data-quiz-back="">Back</button>
@@ -1544,7 +1551,7 @@ img, svg, video, picture { max-width: 100%; height: auto; }
         </div>
         <p class="call">Questions? Call us: <a href="tel:+17186661141">+1 (718) 666-1141</a></p>
       </div>
-    </div>
+    </form>
   </div>
 </section>
 
@@ -1800,12 +1807,40 @@ img, svg, video, picture { max-width: 100%; height: auto; }
       if (current > 0) show(current - 1);
     }
 
-    function finish() {
+    function showThanks() {
       steps.forEach(function (s) { s.classList.remove("active"); });
       var prog = quiz.querySelector(".quiz-progress");
       if (prog) prog.style.display = "none";
       if (fill) fill.style.width = "100%";
       if (done) done.classList.add("active");
+    }
+
+    function finish() {
+      // Copy the chosen quiz answers into the hidden fields so they're submitted too.
+      quiz.querySelectorAll(".opt-grid[data-field]").forEach(function (grid) {
+        var field = quiz.querySelector('input[name="' + grid.dataset.field + '"]');
+        var sel = grid.querySelector(".opt.selected");
+        if (field && sel) field.value = sel.textContent.trim();
+      });
+
+      // Prevent double-submits while the request is in flight.
+      var submitBtn = steps[total - 1].querySelector("[data-quiz-next]");
+      if (submitBtn) submitBtn.disabled = true;
+
+      // Submit to Netlify Forms over AJAX, keeping the in-page thank-you screen.
+      var isNetlify = quiz.tagName === "FORM" && quiz.getAttribute("data-netlify") === "true";
+      if (isNetlify && window.fetch) {
+        var body = new URLSearchParams(new FormData(quiz)).toString();
+        fetch(quiz.getAttribute("action") || "/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body
+        })
+          .then(showThanks)
+          .catch(showThanks); // never trap the parent — show thanks even on a network hiccup
+      } else {
+        showThanks();
+      }
     }
 
     quiz.querySelectorAll("[data-quiz-next]").forEach(function (b) {
@@ -1814,6 +1849,12 @@ img, svg, video, picture { max-width: 100%; height: auto; }
     quiz.querySelectorAll("[data-quiz-back]").forEach(function (b) {
       b.addEventListener("click", goBack);
     });
+
+    // Intercept native form submit (e.g. Enter key) so it runs through the
+    // same step validation / AJAX flow instead of reloading the page.
+    if (quiz.tagName === "FORM") {
+      quiz.addEventListener("submit", function (e) { e.preventDefault(); goNext(); });
+    }
 
     show(0);
   }

@@ -52,11 +52,42 @@ bridgeview-landing/
   600 / 400 px. The photo gallery keeps its portrait tile tall at every width so
   photos aren't cropped into thin strips.
 
-## Not wired up yet (TODO)
+## Lead capture — booking quiz (Netlify Forms → Kommo)
 
-- The **"Book Evaluation Lesson" buttons** and the **booking quiz** do not submit
-  anywhere yet. They need to be connected to a destination — e.g. a CRM (Kommo),
-  Calendly, a form endpoint (Formspree / Netlify Forms), or a WhatsApp link.
+The booking quiz **is wired to [Netlify Forms](https://docs.netlify.com/forms/setup/)**.
+It is a real `<form name="evaluation-booking" data-netlify="true">` and is submitted
+over AJAX (`fetch`) so the in-page "thank-you" screen still works.
+
+Fields sent with every submission:
+
+| Field name         | Source                          |
+|--------------------|---------------------------------|
+| `name`             | "Your name" input               |
+| `phone`            | "Phone" input                   |
+| `email`            | "Email" input                   |
+| `child_age`        | Step 1 answer (filled by JS)    |
+| `sport_experience` | Step 2 answer (filled by JS)    |
+| `bot-field`        | Honeypot (hidden anti-spam)     |
+
+**What works automatically once deployed to Netlify:**
+
+1. Form detection is on by default — after the first deploy the form appears under
+   **Site → Forms** in the Netlify dashboard, and submissions are stored there.
+2. Add an email notification: **Site configuration → Forms → Form notifications →
+   Email notification** so leads also land in an inbox immediately.
+
+**Getting the leads into Kommo (CRM):** Netlify Forms collects the lead but does not
+push to Kommo on its own — bridge it with a no-code automation:
+
+- **Make.com / Zapier:** trigger = "New form submission" (Netlify) → action =
+  "Create lead / contact" (Kommo). Map `name`, `phone`, `email`, `child_age`,
+  `sport_experience` to the Kommo fields.
+- **Or** an **outgoing webhook** (Site configuration → Forms → Form notifications →
+  Outgoing webhook) pointed at a Kommo-compatible endpoint.
+
+> Alternative (any host, no Netlify): change `finish()` in `index.html` to `fetch`
+> POST straight to a Kommo incoming web-form / webhook URL instead of `"/"`.
+
 - No analytics / pixel installed yet (Google Analytics, Meta Pixel).
 
 ## Deploy
