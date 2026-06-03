@@ -58,16 +58,30 @@ The booking quiz **is wired to [Netlify Forms](https://docs.netlify.com/forms/se
 It is a real `<form name="evaluation-booking" data-netlify="true">` and is submitted
 over AJAX (`fetch`) so the in-page "thank-you" screen still works.
 
-Fields sent with every submission:
+The quiz is a **4-step gamified flow** (age → experience → location → contact)
+with a soccer-field progress bar, a success screen, and a post-submit **mini-game**
+(see below). Fields sent with every submission:
 
-| Field name         | Source                          |
-|--------------------|---------------------------------|
-| `name`             | "Your name" input               |
-| `phone`            | "Phone" input                   |
-| `email`            | "Email" input                   |
-| `child_age`        | Step 1 answer (filled by JS)    |
-| `sport_experience` | Step 2 answer (filled by JS)    |
-| `bot-field`        | Honeypot (hidden anti-spam)     |
+| Field name    | Source                                  |
+|---------------|-----------------------------------------|
+| `name`        | "Your name" input                       |
+| `phone`       | "Phone" input                           |
+| `email`       | "Email" input                           |
+| `age`         | Step 1 answer, e.g. `5-7` (filled by JS) |
+| `experience`  | Step 2 answer, e.g. `none` (filled by JS)|
+| `location`    | Step 3 answer, e.g. `yes` (filled by JS) |
+| `bot-field`   | Honeypot (hidden anti-spam)             |
+
+On submit the code also fires a **Facebook Pixel `Lead` event** if a pixel is
+present on the page (`window.fbq`) — guarded, so it's a no-op until you install one.
+
+### Post-submit mini-game (free-ball code word)
+
+After a successful submission the success screen offers a 1-question football
+mini-game. Answering correctly (the answer is **11 players**) reveals a **code word**
+(`ELEVEN`). The parent is told to mention at the Evaluation Lesson that they passed
+the quiz and say the code word to claim a **free ball** for their child. This is
+purely client-side engagement and is not re-submitted to the CRM.
 
 **What works automatically once deployed to Netlify:**
 

@@ -1143,6 +1143,124 @@ img, svg, video, picture { max-width: 100%; height: auto; }
   .ba-toggle button { font-size: 13px; padding: 10px 8px; }
 }
 </style>
+<style>
+/* ============================================================
+   BSA GAMIFIED QUIZ — "Roll the ball down the field"
+   Self-contained dark-field widget that replaces the old form.
+   ============================================================ */
+.bsa-quiz{
+  --bq-gold:#f5c842;
+  position:relative; overflow:hidden; width:100%;
+  background:linear-gradient(170deg,#0d1f15 0%,#1a472a 52%,#0d1f15 100%);
+  border-radius:var(--r-xl);
+  padding:clamp(20px,4vw,30px) clamp(15px,3vw,22px) clamp(20px,4vw,26px);
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:var(--shadow-lg);
+}
+.bq-balls{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+.bq-balls span{ position:absolute; opacity:.07; animation:bqFloat ease-in-out infinite alternate; }
+
+.bq-head{ position:relative; z-index:1; text-align:center; margin-bottom:18px; }
+.bq-kicker{ font-family:var(--font-display); font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,0.4); margin-bottom:5px; }
+.bq-rule{ width:40px; height:2px; background:var(--bq-gold); margin:0 auto; border-radius:1px; }
+
+/* field progress bar */
+.bq-progress{ position:relative; z-index:1; margin-bottom:22px; }
+.bq-field{ position:relative; height:50px; border-radius:25px; background:#2d6a3f; overflow:hidden; border:2px solid rgba(255,255,255,0.15); }
+.bq-field .ln{ position:absolute; left:50%; top:0; width:2px; height:100%; background:rgba(255,255,255,0.18); }
+.bq-field .circle{ position:absolute; left:50%; top:50%; width:30px; height:30px; border:2px solid rgba(255,255,255,0.15); border-radius:50%; transform:translate(-50%,-50%); }
+.bq-field .ball{ position:absolute; top:50%; left:12%; transform:translate(-50%,-50%); font-size:26px; transition:left .6s cubic-bezier(0.34,1.56,0.64,1); filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4)); z-index:2; }
+.bq-field .ends{ position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center; padding:0 14px; pointer-events:none; }
+.bq-field .ends span{ font-size:10.5px; color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:.5px; }
+.bq-steplabel{ text-align:center; margin-top:8px; font-size:11px; color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:1px; }
+
+/* glass card */
+.bq-card{ position:relative; z-index:1; background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:20px; padding:clamp(22px,4vw,30px) clamp(16px,3vw,22px); border:1px solid rgba(255,255,255,0.08); box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; }
+.bq-corner{ position:absolute; top:-40px; right:-40px; width:100px; height:100px; border-radius:50%; background:radial-gradient(circle,rgba(245,200,66,0.08),transparent 70%); pointer-events:none; }
+
+.bq-step{ display:none; position:relative; z-index:1; animation:bqFade .5s ease both; }
+.bq-step.active{ display:block; }
+.bq-qhead{ text-align:center; margin-bottom:24px; }
+.bq-emoji{ font-size:46px; line-height:1; margin-bottom:12px; animation:bqBounce .6s ease; }
+.bq-q{ font-family:var(--font-display); font-weight:800; font-size:clamp(20px,2.6vw,24px); color:#fff; margin:0 0 8px; line-height:1.2; letter-spacing:-0.01em; }
+.bq-sub{ font-size:14px; color:rgba(255,255,255,0.55); margin:0; line-height:1.5; }
+
+.bq-opts{ display:flex; flex-direction:column; gap:10px; }
+.bq-opt{ display:flex; align-items:center; gap:14px; width:100%; padding:16px 20px; min-height:48px; border:2px solid rgba(255,255,255,0.12); border-radius:16px; background:rgba(255,255,255,0.03); color:#fff; cursor:pointer; transition:border-color .2s,background .2s,transform .2s; text-align:left; animation:bqSlideUp .4s ease-out both; font-family:var(--font-body); }
+.bq-opt .ico{ font-size:26px; line-height:1; flex-shrink:0; }
+.bq-opt .lbl{ font-size:16px; font-weight:600; letter-spacing:.3px; }
+.bq-opt .chk{ margin-left:auto; font-size:18px; opacity:0; transition:opacity .2s; }
+.bq-opt:nth-child(1){ animation-delay:0s; } .bq-opt:nth-child(2){ animation-delay:.08s; }
+.bq-opt:nth-child(3){ animation-delay:.16s; } .bq-opt:nth-child(4){ animation-delay:.24s; }
+@media (hover:hover){ .bq-opt:hover{ background:rgba(255,255,255,0.06); transform:scale(1.01); } }
+.bq-opt.selected{ border-color:var(--bq-gold); background:rgba(245,200,66,0.12); transform:scale(1.02); }
+.bq-opt.selected .lbl{ color:var(--bq-gold); }
+.bq-opt.selected .chk{ opacity:1; animation:bqPop .3s ease; }
+.bq-opt.wrong{ border-color:#ff6b6b; background:rgba(255,107,107,0.1); }
+
+/* contact fields */
+.bq-fields{ display:flex; flex-direction:column; gap:14px; }
+.bq-label{ display:block; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:6px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+.bq-input{ width:100%; padding:14px 16px; border:2px solid rgba(255,255,255,0.12); border-radius:12px; background:rgba(255,255,255,0.05); color:#fff; font-size:16px; font-weight:500; outline:none; transition:border-color .2s; box-sizing:border-box; font-family:var(--font-body); }
+.bq-input:focus{ border-color:var(--bq-gold); }
+.bq-input.invalid{ border-color:#ff6b6b; }
+.bq-input::placeholder{ color:rgba(255,255,255,0.25); }
+.bq-hint{ font-size:12px; color:rgba(255,255,255,0.4); margin-top:6px; }
+.bq-submit{ width:100%; margin-top:20px; padding:16px 24px; background:linear-gradient(135deg,var(--bq-gold),#e6b830); color:#0d1f15; font-size:17px; font-weight:800; border:none; border-radius:14px; cursor:pointer; transition:filter .2s,opacity .2s; letter-spacing:.5px; text-transform:uppercase; font-family:var(--font-display); }
+.bq-submit:not(:disabled):hover{ filter:brightness(1.05); }
+.bq-submit:disabled{ opacity:.4; cursor:not-allowed; }
+.bq-fine{ text-align:center; font-size:12px; color:rgba(255,255,255,0.35); margin-top:12px; line-height:1.5; }
+
+.bq-back{ display:none; align-items:center; gap:6px; margin:18px auto 0; padding:8px 16px; background:none; border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:rgba(255,255,255,0.45); font-size:13px; cursor:pointer; font-family:var(--font-body); transition:color .2s,border-color .2s; }
+.bq-back:hover{ color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.25); }
+.bq-back.show{ display:inline-flex; }
+
+/* success + mini-game */
+.bq-success,.bq-game{ display:none; position:relative; z-index:1; text-align:center; animation:bqFade .5s ease-out; }
+.bq-success.active,.bq-game.active{ display:block; }
+.bq-big-emoji{ font-size:64px; line-height:1; margin-bottom:14px; animation:bqBounce .6s ease; }
+.bq-success h3,.bq-game h3{ font-family:var(--font-display); font-weight:800; font-size:clamp(24px,3.4vw,28px); color:var(--bq-gold); margin:0 0 10px; letter-spacing:-0.01em; }
+.bq-success .lead,.bq-game .lead{ font-size:17px; color:#fff; font-weight:600; margin:0 0 18px; line-height:1.5; }
+.bq-note{ background:rgba(255,255,255,0.06); border-radius:16px; padding:18px; margin-bottom:18px; border:1px solid rgba(255,255,255,0.1); }
+.bq-note p{ font-size:14.5px; color:rgba(255,255,255,0.8); margin:0 0 12px; line-height:1.6; }
+.bq-note p:last-child{ margin-bottom:0; }
+.bq-note b{ color:#fff; }
+.bq-giftline{ display:flex; align-items:center; gap:10px; justify-content:center; padding:12px 16px; background:rgba(245,200,66,0.1); border-radius:12px; border:1px solid rgba(245,200,66,0.2); }
+.bq-giftline span{ font-size:14px; color:var(--bq-gold); font-weight:600; }
+.bq-play{ width:100%; padding:16px 22px; margin-bottom:14px; background:linear-gradient(135deg,var(--bq-gold),#e6b830); color:#0d1f15; font-family:var(--font-display); font-weight:800; font-size:16px; text-transform:uppercase; letter-spacing:.5px; border:none; border-radius:14px; cursor:pointer; animation:bqPulse 2s infinite; }
+.bq-play:hover{ filter:brightness(1.05); }
+.bq-callus{ display:inline-flex; align-items:center; gap:8px; color:rgba(255,255,255,0.5); font-size:14px; margin-top:6px; }
+.bq-callus a{ color:rgba(255,255,255,0.7); }
+
+/* mini-game internals */
+.bq-game .gview{ display:none; }
+.bq-game .gview.active{ display:block; }
+.bq-codebox{ margin:6px 0 16px; padding:18px; border-radius:16px; background:rgba(245,200,66,0.12); border:2px dashed var(--bq-gold); }
+.bq-codebox .clab{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.55); font-weight:700; margin-bottom:6px; }
+.bq-codebox .code{ font-family:var(--font-display); font-weight:900; font-size:clamp(30px,7vw,42px); color:var(--bq-gold); letter-spacing:3px; line-height:1; }
+.bq-feedback{ min-height:20px; margin-top:14px; font-size:14px; font-weight:600; color:#ff9d9d; }
+
+.bq-guarantee{ position:relative; z-index:1; text-align:center; margin-top:18px; }
+.bq-guarantee .badge{ display:inline-flex; align-items:center; gap:8px; padding:10px 18px; background:rgba(255,255,255,0.04); border-radius:12px; border:1px solid rgba(255,255,255,0.08); font-size:12px; color:rgba(255,255,255,0.45); font-weight:500; }
+
+/* confetti */
+.bq-confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
+.bq-confetti i{ position:absolute; top:-14px; animation:bqConfetti linear forwards; }
+
+@keyframes bqFade{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:none;} }
+@keyframes bqSlideUp{ from{ opacity:0; transform:translateY(16px);} to{ opacity:1; transform:none;} }
+@keyframes bqBounce{ 0%{ transform:scale(.3); opacity:0;} 50%{ transform:scale(1.08);} 100%{ transform:scale(1); opacity:1;} }
+@keyframes bqPop{ from{ transform:scale(0);} to{ transform:scale(1);} }
+@keyframes bqFloat{ 0%{ transform:translateY(0) rotate(0);} 100%{ transform:translateY(-30px) rotate(360deg);} }
+@keyframes bqConfetti{ 0%{ transform:translateY(0) rotate(0); opacity:1;} 100%{ transform:translateY(420px) rotate(720deg); opacity:0;} }
+@keyframes bqPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(245,200,66,0.35);} 50%{ box-shadow:0 0 0 12px rgba(245,200,66,0);} }
+@keyframes bqShake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-7px);} 75%{ transform:translateX(7px);} }
+.bq-shake{ animation:bqShake .3s ease; }
+@media (prefers-reduced-motion:reduce){
+  .bsa-quiz *{ animation-duration:.001s !important; }
+  .bq-field .ball{ transition:none; }
+}
+</style>
 </head>
 <body>
 
@@ -1476,82 +1594,170 @@ img, svg, video, picture { max-width: 100%; height: auto; }
       </ul>
     </div>
 
-    <!-- QUIZ -->
-    <form class="quiz reveal" name="evaluation-booking" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/">
-      <!-- Netlify Forms: required hidden field so submissions are attributed to this form -->
-      <input type="hidden" name="form-name" value="evaluation-booking">
-      <!-- Quiz answers (filled by JS from the selected options before submit) -->
-      <input type="hidden" name="child_age" value="">
-      <input type="hidden" name="sport_experience" value="">
-      <!-- Honeypot: hidden from humans, catches bots -->
-      <p style="display:none"><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
-      <div class="quiz-progress">
-        <div class="bar"><i></i></div>
-        <span class="step-label">Step 1 of 3</span>
+    <!-- QUIZ (gamified) -->
+    <div class="bsa-quiz reveal" id="quiz">
+      <!-- floating background balls -->
+      <div class="bq-balls" aria-hidden="true">
+        <span style="left:8%;top:6%;font-size:16px;animation-duration:4s;animation-delay:0s">⚽</span>
+        <span style="left:24%;top:38%;font-size:22px;animation-duration:5s;animation-delay:.3s">⚽</span>
+        <span style="left:40%;top:70%;font-size:28px;animation-duration:6s;animation-delay:.6s">⚽</span>
+        <span style="left:62%;top:10%;font-size:18px;animation-duration:4.6s;animation-delay:.9s">⚽</span>
+        <span style="left:80%;top:46%;font-size:24px;animation-duration:5.6s;animation-delay:1.2s">⚽</span>
+        <span style="left:92%;top:74%;font-size:30px;animation-duration:6.4s;animation-delay:1.5s">⚽</span>
       </div>
 
-      <!-- Step 1 -->
-      <div class="quiz-step active" data-autoadvance="1">
-        <div class="q">How old is your child?</div>
-        <div class="opt-grid cols-2" data-field="child_age">
-          <button type="button" class="opt"><span class="radio"></span> 2–4 years</button>
-          <button type="button" class="opt"><span class="radio"></span> 5–7 years</button>
-          <button type="button" class="opt"><span class="radio"></span> 8–11 years</button>
-          <button type="button" class="opt"><span class="radio"></span> 12+ years</button>
-        </div>
-        <div class="quiz-nav">
-          <button type="button" class="btn btn-gold btn-block" data-quiz-next="">Continue <span data-icon="arrowRight" data-sw="2.4"></span></button>
-        </div>
+      <div class="bq-head">
+        <div class="bq-kicker">Bridgeview Soccer Academy</div>
+        <div class="bq-rule"></div>
       </div>
 
-      <!-- Step 2 -->
-      <div class="quiz-step" data-autoadvance="1">
-        <div class="q">Has your child tried any sport before?</div>
-        <div class="opt-grid" data-field="sport_experience">
-          <button type="button" class="opt"><span class="radio"></span> No, this would be the first time</button>
-          <button type="button" class="opt"><span class="radio"></span> Yes, a little</button>
-          <button type="button" class="opt"><span class="radio"></span> Yes, plays regularly</button>
+      <!-- field progress -->
+      <div class="bq-progress">
+        <div class="bq-field">
+          <div class="ln"></div>
+          <div class="circle"></div>
+          <div class="ball">⚽</div>
+          <div class="ends"><span>KICK OFF</span><span>GOAL! 🥅</span></div>
         </div>
-        <div class="quiz-nav">
-          <button type="button" class="quiz-back" data-quiz-back="">Back</button>
-          <button type="button" class="btn btn-gold" data-quiz-next="">Continue <span data-icon="arrowRight" data-sw="2.4"></span></button>
-        </div>
+        <div class="bq-steplabel">STEP 1 OF 4</div>
       </div>
 
-      <!-- Step 3 -->
-      <div class="quiz-step">
-        <div class="q">Where should we reach you?</div>
-        <div class="field">
-          <label>Your name <span class="req">*</span></label>
-          <input type="text" name="name" required="" placeholder="First name" autocomplete="given-name">
-        </div>
-        <div class="field">
-          <label>Phone <span class="req">*</span></label>
-          <input type="tel" name="phone" required="" placeholder="+1 (___) ___-____" autocomplete="tel">
-          <span class="hint">WhatsApp preferred — that's how the coach will reach you.</span>
-        </div>
-        <div class="field">
-          <label>Email <span class="req">*</span></label>
-          <input type="email" name="email" required="" placeholder="you@email.com" autocomplete="email">
-        </div>
-        <div class="quiz-nav">
-          <button type="button" class="quiz-back" data-quiz-back="">Back</button>
-          <button type="button" class="btn btn-gold" data-quiz-next=""><span class="ball">⚽</span> Book Evaluation Lesson</button>
-        </div>
-      </div>
+      <!-- card holds the Netlify form -->
+      <form class="bq-card" name="evaluation-booking" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/">
+        <div class="bq-corner" aria-hidden="true"></div>
+        <!-- Netlify Forms plumbing -->
+        <input type="hidden" name="form-name" value="evaluation-booking">
+        <input type="hidden" name="age" value="">
+        <input type="hidden" name="experience" value="">
+        <input type="hidden" name="location" value="">
+        <p style="display:none"><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
 
-      <!-- Thank you -->
-      <div class="quiz-done">
-        <span class="check"><span data-icon="check" data-sw="2.6"></span></span>
-        <h3>Done! Your spot is reserved.</h3>
-        <p>Our coach will call you within 24 hours to learn about your child and schedule the Evaluation Lesson.</p>
-        <div class="gift-note">
-          <span data-icon="gift" data-sw="2"></span>
-          <span>Remember — your family also gets a training day with a Brooklyn FC player ($1,000 value).</span>
+        <!-- Step 1 — age -->
+        <div class="bq-step active" data-autoadvance="1" data-field="age">
+          <div class="bq-qhead">
+            <div class="bq-emoji">⚽</div>
+            <h2 class="bq-q">How old is your future star?</h2>
+            <p class="bq-sub">Pick their age — we'll find the perfect group</p>
+          </div>
+          <div class="bq-opts">
+            <button type="button" class="bq-opt" data-value="2-4"><span class="ico">👶</span><span class="lbl">2–4 years</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="5-7"><span class="ico">🌟</span><span class="lbl">5–7 years</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="8-11"><span class="ico">⚡</span><span class="lbl">8–11 years</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="12+"><span class="ico">🔥</span><span class="lbl">12+ years</span><span class="chk">✓</span></button>
+          </div>
         </div>
-        <p class="call">Questions? Call us: <a href="tel:+17186661141">+1 (718) 666-1141</a></p>
+
+        <!-- Step 2 — experience -->
+        <div class="bq-step" data-autoadvance="1" data-field="experience">
+          <div class="bq-qhead">
+            <div class="bq-emoji">🏟️</div>
+            <h2 class="bq-q">Ever kicked a ball at another club?</h2>
+            <p class="bq-sub">No wrong answers — we welcome every level</p>
+          </div>
+          <div class="bq-opts">
+            <button type="button" class="bq-opt" data-value="none"><span class="ico">🆕</span><span class="lbl">Nope, this is the very first time!</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="some"><span class="ico">👟</span><span class="lbl">Tried a little — park, school, or a short class</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="club"><span class="ico">🎽</span><span class="lbl">Yes — trained at another club before</span><span class="chk">✓</span></button>
+          </div>
+        </div>
+
+        <!-- Step 3 — location -->
+        <div class="bq-step" data-autoadvance="1" data-field="location">
+          <div class="bq-qhead">
+            <div class="bq-emoji">📍</div>
+            <h2 class="bq-q">Can you get to us?</h2>
+            <p class="bq-sub">9000 Bay Parkway, Brooklyn — right next to Caesar's Bay Plaza</p>
+          </div>
+          <div class="bq-opts">
+            <button type="button" class="bq-opt" data-value="yes"><span class="ico">✅</span><span class="lbl">Yes, that's close to us!</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="far"><span class="ico">🚗</span><span class="lbl">It's a bit far, but we'd make it work</span><span class="chk">✓</span></button>
+            <button type="button" class="bq-opt" data-value="unsure"><span class="ico">🗺️</span><span class="lbl">Not sure — I don't know the area well</span><span class="chk">✓</span></button>
+          </div>
+        </div>
+
+        <!-- Step 4 — contact -->
+        <div class="bq-step">
+          <div class="bq-qhead">
+            <div class="bq-emoji">🎯</div>
+            <h2 class="bq-q">One kick away from the field!</h2>
+            <p class="bq-sub">Drop your details — our coach calls within 24 hours</p>
+          </div>
+          <div class="bq-fields">
+            <div>
+              <label class="bq-label">Your name</label>
+              <input class="bq-input" type="text" name="name" required="" placeholder="Sarah" autocomplete="given-name">
+            </div>
+            <div>
+              <label class="bq-label">Phone (WhatsApp preferred)</label>
+              <input class="bq-input" type="tel" name="phone" required="" placeholder="+1 (718) ..." autocomplete="tel">
+              <p class="bq-hint">WhatsApp preferred — that's how the coach will reach you.</p>
+            </div>
+            <div>
+              <label class="bq-label">Email</label>
+              <input class="bq-input" type="email" name="email" required="" placeholder="you@email.com" autocomplete="email">
+            </div>
+          </div>
+          <button type="button" class="bq-submit" data-quiz-submit disabled>⚽ Book Evaluation Lesson</button>
+          <p class="bq-fine">You only pay if you decide to stay. Our coach will call — not a salesperson.</p>
+        </div>
+
+        <!-- Success -->
+        <div class="bq-success">
+          <div class="bq-big-emoji">🥅⚽</div>
+          <h3>GOOOAL!</h3>
+          <p class="lead">Your spot is reserved!</p>
+          <div class="bq-note">
+            <p>Our coach will call you within <b>24 hours</b> to learn about your child and schedule the Evaluation Lesson.</p>
+            <div class="bq-giftline"><span>🎁</span><span>$1,000 Brooklyn FC training day — included</span></div>
+          </div>
+          <button type="button" class="bq-play" data-game-start>🎮 Play 1 question — win a FREE ball</button>
+          <span class="bq-callus">📞 Questions? Call <a href="tel:+17186661141">+1 (718) 666-1141</a></span>
+        </div>
+
+        <!-- Mini-game -->
+        <div class="bq-game">
+          <!-- question view -->
+          <div class="gview gq active">
+            <div class="bq-big-emoji">⚽🎁</div>
+            <h3>Win a FREE ball!</h3>
+            <p class="lead">Answer 1 football question right and your child gets a brand-new ball — yours to claim at the Evaluation Lesson.</p>
+            <div class="bq-qhead" style="margin-bottom:18px">
+              <p class="bq-q" style="font-size:19px">How many players from one team are on the field at the same time?</p>
+            </div>
+            <div class="bq-opts">
+              <button type="button" class="bq-opt" data-answer><span class="ico">7️⃣</span><span class="lbl">7 players</span></button>
+              <button type="button" class="bq-opt" data-answer><span class="ico">9️⃣</span><span class="lbl">9 players</span></button>
+              <button type="button" class="bq-opt" data-answer data-correct="1"><span class="ico">⚽</span><span class="lbl">11 players</span></button>
+              <button type="button" class="bq-opt" data-answer><span class="ico">🔢</span><span class="lbl">13 players</span></button>
+            </div>
+            <div class="bq-feedback" data-feedback></div>
+          </div>
+          <!-- win view -->
+          <div class="gview gwin">
+            <div class="bq-big-emoji">🎉⚽</div>
+            <h3>YOU WON A FREE BALL!</h3>
+            <p class="lead">Correct — that's 11! Here's your secret code word:</p>
+            <div class="bq-codebox">
+              <div class="clab">Your code word</div>
+              <div class="code">ELEVEN</div>
+            </div>
+            <div class="bq-note">
+              <p>At your Evaluation Lesson, tell our coach: <b>"I passed the quiz — the answer is ELEVEN."</b> Say this code word and your child gets a brand-new ball, completely free. 🎁⚽</p>
+              <p style="color:rgba(255,255,255,0.55)">The ball is yours after you come in for the Evaluation Lesson. Don't forget to mention it!</p>
+            </div>
+            <span class="bq-callus">📞 Questions? Call <a href="tel:+17186661141">+1 (718) 666-1141</a></span>
+          </div>
+        </div>
+
+        <!-- back -->
+        <button type="button" class="bq-back" data-quiz-back>← Back</button>
+      </form>
+
+      <!-- guarantee badge -->
+      <div class="bq-guarantee">
+        <span class="badge">🛡️ Your child will ask to come back — or full refund</span>
       </div>
-    </form>
+    </div>
   </div>
 </section>
 
@@ -1727,136 +1933,171 @@ img, svg, video, picture { max-width: 100%; height: auto; }
     );
   }
 
-  /* ---------- Quiz ---------- */
+  /* ---------- Gamified quiz + mini-game ---------- */
   function setupQuiz() {
-    var quiz = document.querySelector(".quiz");
-    if (!quiz) return;
+    var root = document.querySelector(".bsa-quiz");
+    if (!root) return;
+    var form = root.querySelector(".bq-card");
+    if (!form) return;
 
-    var steps = Array.prototype.slice.call(quiz.querySelectorAll(".quiz-step"));
-    var done = quiz.querySelector(".quiz-done");
-    var fill = quiz.querySelector(".quiz-progress .bar i");
-    var stepLabel = quiz.querySelector(".step-label");
+    var steps = Array.prototype.slice.call(form.querySelectorAll(".bq-step"));
+    var total = steps.length;                 // 4: age, experience, location, contact
+    var positions = [12, 37, 62, 87];         // ball % along the field per step
+    var ball = root.querySelector(".bq-field .ball");
+    var stepLabel = root.querySelector(".bq-steplabel");
+    var progress = root.querySelector(".bq-progress");
+    var backBtn = form.querySelector(".bq-back");
+    var success = form.querySelector(".bq-success");
+    var game = form.querySelector(".bq-game");
+    var submitBtn = form.querySelector("[data-quiz-submit]");
     var current = 0;
-    var total = steps.length;
 
-    // option selection
-    quiz.querySelectorAll(".opt-grid").forEach(function (grid) {
-      grid.querySelectorAll(".opt").forEach(function (opt) {
+    /* --- step navigation --- */
+    function show(idx) {
+      current = idx;
+      steps.forEach(function (s, i) { s.classList.toggle("active", i === idx); });
+      if (ball) ball.style.left = (positions[idx] || 87) + "%";
+      if (stepLabel) stepLabel.textContent = idx < total - 1 ? "STEP " + (idx + 1) + " OF " + total : "ALMOST THERE";
+      if (backBtn) backBtn.classList.toggle("show", idx > 0);
+    }
+
+    function goBack() { if (current > 0) show(current - 1); }
+
+    /* --- question steps: select option, store value, auto-advance --- */
+    steps.forEach(function (step) {
+      var field = step.dataset.field;
+      if (!field) return;
+      var hidden = form.querySelector('input[name="' + field + '"]');
+      step.querySelectorAll(".bq-opt").forEach(function (opt) {
         opt.addEventListener("click", function () {
-          grid.querySelectorAll(".opt").forEach(function (o) {
-            o.classList.remove("selected");
-          });
+          step.querySelectorAll(".bq-opt").forEach(function (o) { o.classList.remove("selected"); });
           opt.classList.add("selected");
-          // auto-advance on single-choice steps
-          var step = opt.closest(".quiz-step");
-          if (step && step.dataset.autoadvance === "1") {
-            setTimeout(function () { goNext(); }, 260);
+          if (hidden) hidden.value = opt.dataset.value || "";
+          if (step.dataset.autoadvance === "1") {
+            setTimeout(function () { if (current < total - 1) show(current + 1); }, 350);
           }
         });
       });
     });
 
-    function show(idx) {
-      steps.forEach(function (s, i) { s.classList.toggle("active", i === idx); });
-      current = idx;
-      var pct = ((idx + 1) / total) * 100;
-      if (fill) fill.style.width = pct + "%";
-      if (stepLabel) stepLabel.textContent = "Step " + (idx + 1) + " of " + total;
-    }
+    /* --- contact step: live validation enables the submit button --- */
+    var inName = form.querySelector('input[name="name"]');
+    var inPhone = form.querySelector('input[name="phone"]');
+    var inEmail = form.querySelector('input[name="email"]');
 
-    function validateStep(step) {
-      // radio steps
-      if (step.querySelector(".opt-grid")) {
-        var sel = step.querySelector(".opt.selected");
-        if (!sel) { nudge(step); return false; }
-        return true;
+    function fieldValid(inp) {
+      if (!inp) return false;
+      if (inp.type === "email") return /\S+@\S+\.\S+/.test(inp.value);
+      return inp.value.trim().length > 1;
+    }
+    function allValid() { return fieldValid(inName) && fieldValid(inPhone) && fieldValid(inEmail); }
+    function refreshSubmit() { if (submitBtn) submitBtn.disabled = !allValid(); }
+
+    [inName, inPhone, inEmail].forEach(function (inp) {
+      if (!inp) return;
+      inp.addEventListener("input", function () { inp.classList.remove("invalid"); refreshSubmit(); });
+    });
+
+    /* --- confetti for the success screen --- */
+    function burstConfetti(container) {
+      var colors = ["#f5c842", "#4ade80", "#38bdf8", "#f472b6", "#ffffff"];
+      var wrap = document.createElement("div");
+      wrap.className = "bq-confetti";
+      for (var i = 0; i < 40; i++) {
+        var c = document.createElement("i");
+        var size = 4 + Math.random() * 8;
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+        c.style.left = (Math.random() * 100) + "%";
+        c.style.background = colors[i % colors.length];
+        c.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        c.style.animationDuration = (1.5 + Math.random() * 2) + "s";
+        c.style.animationDelay = (Math.random() * 0.5) + "s";
+        wrap.appendChild(c);
       }
-      // form step
-      var ok = true;
-      step.querySelectorAll("input[required]").forEach(function (inp) {
-        var valid = inp.value.trim().length > 1;
-        if (inp.type === "email") valid = /\S+@\S+\.\S+/.test(inp.value);
-        inp.classList.toggle("invalid", !valid);
-        if (!valid) ok = false;
-      });
-      return ok;
+      container.appendChild(wrap);
+      setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 4200);
     }
 
-    function nudge(el) {
-      el.animate(
-        [
-          { transform: "translateX(0)" },
-          { transform: "translateX(-7px)" },
-          { transform: "translateX(7px)" },
-          { transform: "translateX(0)" }
-        ],
-        { duration: 280 }
-      );
-    }
-
-    function goNext() {
-      if (!validateStep(steps[current])) return;
-      if (current < total - 1) {
-        show(current + 1);
-      } else {
-        finish();
-      }
-    }
-
-    function goBack() {
-      if (current > 0) show(current - 1);
-    }
-
-    function showThanks() {
+    /* --- submit to Netlify Forms (keeps the in-page success screen) --- */
+    function showSuccess() {
       steps.forEach(function (s) { s.classList.remove("active"); });
-      var prog = quiz.querySelector(".quiz-progress");
-      if (prog) prog.style.display = "none";
-      if (fill) fill.style.width = "100%";
-      if (done) done.classList.add("active");
+      if (progress) progress.style.display = "none";
+      if (backBtn) backBtn.classList.remove("show");
+      if (success) {
+        success.classList.add("active");
+        burstConfetti(success);
+      }
     }
 
-    function finish() {
-      // Copy the chosen quiz answers into the hidden fields so they're submitted too.
-      quiz.querySelectorAll(".opt-grid[data-field]").forEach(function (grid) {
-        var field = quiz.querySelector('input[name="' + grid.dataset.field + '"]');
-        var sel = grid.querySelector(".opt.selected");
-        if (field && sel) field.value = sel.textContent.trim();
-      });
+    function doSubmit() {
+      if (!allValid()) {
+        [inName, inPhone, inEmail].forEach(function (inp) {
+          if (inp) inp.classList.toggle("invalid", !fieldValid(inp));
+        });
+        return;
+      }
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Sending..."; }
 
-      // Prevent double-submits while the request is in flight.
-      var submitBtn = steps[total - 1].querySelector("[data-quiz-next]");
-      if (submitBtn) submitBtn.disabled = true;
+      // Fire Facebook Pixel "Lead" if the pixel is installed on the page.
+      if (window.fbq) { try { window.fbq("track", "Lead"); } catch (e) {} }
 
-      // Submit to Netlify Forms over AJAX, keeping the in-page thank-you screen.
-      var isNetlify = quiz.tagName === "FORM" && quiz.getAttribute("data-netlify") === "true";
+      var settle = showSuccess;
+      var isNetlify = form.getAttribute("data-netlify") === "true";
       if (isNetlify && window.fetch) {
-        var body = new URLSearchParams(new FormData(quiz)).toString();
-        fetch(quiz.getAttribute("action") || "/", {
+        var body = new URLSearchParams(new FormData(form)).toString();
+        fetch(form.getAttribute("action") || "/", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: body
-        })
-          .then(showThanks)
-          .catch(showThanks); // never trap the parent — show thanks even on a network hiccup
+        }).then(settle).catch(settle); // never trap the parent — show success regardless
       } else {
-        showThanks();
+        setTimeout(settle, 900);
       }
     }
 
-    quiz.querySelectorAll("[data-quiz-next]").forEach(function (b) {
-      b.addEventListener("click", goNext);
-    });
-    quiz.querySelectorAll("[data-quiz-back]").forEach(function (b) {
-      b.addEventListener("click", goBack);
+    if (submitBtn) submitBtn.addEventListener("click", doSubmit);
+    if (backBtn) backBtn.addEventListener("click", goBack);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (current === total - 1) doSubmit();
     });
 
-    // Intercept native form submit (e.g. Enter key) so it runs through the
-    // same step validation / AJAX flow instead of reloading the page.
-    if (quiz.tagName === "FORM") {
-      quiz.addEventListener("submit", function (e) { e.preventDefault(); goNext(); });
+    /* --- mini-game: one football question unlocks the free-ball code word --- */
+    if (game) {
+      var gq = game.querySelector(".gq");
+      var gwin = game.querySelector(".gwin");
+      var feedback = game.querySelector("[data-feedback]");
+      var playBtn = success ? success.querySelector("[data-game-start]") : null;
+
+      if (playBtn) {
+        playBtn.addEventListener("click", function () {
+          if (success) success.classList.remove("active");
+          game.classList.add("active");
+        });
+      }
+
+      game.querySelectorAll(".gq .bq-opt[data-answer]").forEach(function (opt) {
+        opt.addEventListener("click", function () {
+          if (opt.dataset.correct === "1") {
+            opt.classList.add("selected");
+            if (feedback) feedback.textContent = "";
+            setTimeout(function () {
+              if (gq) gq.classList.remove("active");
+              if (gwin) gwin.classList.add("active");
+            }, 450);
+          } else {
+            opt.classList.add("wrong");
+            if (gq) { gq.classList.add("bq-shake"); setTimeout(function () { gq.classList.remove("bq-shake"); }, 320); }
+            if (feedback) feedback.textContent = "Not quite — give it another kick! 💪";
+            setTimeout(function () { opt.classList.remove("wrong"); }, 700);
+          }
+        });
+      });
     }
 
     show(0);
+    refreshSubmit();
   }
 
   /* ---------- Init ---------- */
