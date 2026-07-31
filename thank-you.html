@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Thank You — Bridgeview Soccer Academy</title>
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5MMGDKSMF1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5MMGDKSMF1');
+</script>
+
+<!-- ============================================
+     META PIXEL — раскомментировать, когда придёт ID.
+     Заменить PIXEL_ID_PLACEHOLDER в двух местах.
+     Событие Lead вызывается НЕ здесь, а в проверке
+     конверсии внизу страницы (чтобы прямые заходы
+     не засчитывались).
+     ============================================ -->
+<!--
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'PIXEL_ID_PLACEHOLDER');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=PIXEL_ID_PLACEHOLDER&ev=PageView&noscript=1"/></noscript>
+-->
+
+<style>
+/* Fonts — reuse the landing's Archivo (display) + Hanken (body), latin subset */
+@font-face{font-family:'Archivo';font-style:normal;font-weight:700;font-display:swap;src:url("assets/fonts/archivo-500-3.woff2") format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+20AC;}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:800;font-display:swap;src:url("assets/fonts/archivo-500-3.woff2") format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+20AC;}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:900;font-display:swap;src:url("assets/fonts/archivo-500-3.woff2") format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+20AC;}
+@font-face{font-family:'Hanken Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/archivo-400-4.woff2") format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+20AC;}
+@font-face{font-family:'Hanken Grotesk';font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/archivo-400-4.woff2") format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+20AC;}
+
+:root{
+  --navy-900:#0E1838; --navy:#18294F; --navy-700:#243a6e;
+  --gold:#F5BE1E; --gold-deep:#E0A50C; --gold-soft:#FBE7A6;
+  --cream:#F7F2E8; --ink:#16224A; --ink-soft:#4a5575;
+  --font-display:"Archivo",system-ui,sans-serif;
+  --font-body:"Hanken Grotesk",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-body);color:#fff;background:var(--navy);
+  min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(120% 90% at 88% 8%,rgba(52,80,138,0.55),transparent 60%),
+             radial-gradient(80% 70% at 0% 100%,rgba(46,139,79,0.18),transparent 55%);}
+img{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.06;letter-spacing:-0.02em;}
+
+/* header (continuity with the landing) */
+.ty-header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
+  gap:14px;max-width:1140px;margin:0 auto;padding:16px clamp(18px,5vw,56px);}
+.ty-brand{display:flex;align-items:center;gap:12px;}
+.ty-brand img{width:46px;height:46px;}
+.ty-brand strong{font-family:var(--font-display);font-weight:800;font-size:16px;color:#fff;display:block;line-height:1.05;}
+.ty-brand span{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#aeb9d8;}
+.ty-header .ty-phone{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);
+  font-weight:700;font-size:15px;color:#fff;padding:9px 16px;border-radius:999px;
+  border:1.5px solid rgba(255,255,255,0.18);white-space:nowrap;}
+
+/* main card */
+.ty-wrap{position:relative;z-index:2;max-width:640px;margin:0 auto;
+  padding:clamp(24px,5vw,48px) clamp(18px,5vw,40px) 64px;text-align:center;}
+.ty-emoji{font-size:64px;line-height:1;margin-bottom:14px;}
+.ty-headline{font-weight:900;font-size:clamp(34px,7vw,56px);color:var(--gold);margin-bottom:12px;}
+.ty-lead{font-size:clamp(18px,2.4vw,22px);font-weight:600;color:#fff;margin:0 0 24px;}
+
+.ty-gift{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;margin-bottom:8px;
+  background:rgba(245,190,30,0.12);border:1px solid rgba(245,190,30,0.3);border-radius:14px;
+  font-size:15px;font-weight:600;color:var(--gold-soft);}
+.ty-phone-line{margin-top:14px;font-size:15px;color:#aeb9d8;}
+.ty-phone-line a{color:var(--gold);font-weight:700;}
+
+/* what happens next */
+.next-steps{text-align:left;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:clamp(22px,4vw,32px);margin:30px auto 0;max-width:560px;}
+.next-steps h3{font-size:clamp(20px,3vw,24px);font-weight:800;color:#fff;margin-bottom:18px;text-align:center;}
+.next-steps ol{margin:0;padding:0;list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:16px;}
+.next-steps li{position:relative;padding-left:52px;font-size:15.5px;color:#c8d1ea;line-height:1.55;counter-increment:step;}
+.next-steps li b{color:#fff;}
+.next-steps li::before{content:counter(step);position:absolute;left:0;top:-2px;width:34px;height:34px;
+  border-radius:50%;background:var(--gold);color:var(--navy-900);font-family:var(--font-display);
+  font-weight:900;font-size:16px;display:grid;place-items:center;}
+.next-steps > p{margin:20px 0 0;font-size:14.5px;color:#aeb9d8;text-align:center;}
+.next-steps > p a{color:var(--gold);font-weight:700;}
+
+/* back button */
+.ty-back-row{margin-top:32px;text-align:center;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--font-display);font-weight:800;font-size:16px;padding:16px 28px;border-radius:999px;
+  transition:transform .18s,background .2s;}
+.btn-ghost{border:1.5px solid rgba(255,255,255,0.35);color:#fff;}
+.btn-ghost:hover{background:rgba(255,255,255,0.08);transform:translateY(-2px);}
+</style>
+</head>
+<body>
+
+<header class="ty-header">
+  <a class="ty-brand" href="/">
+    <img src="assets/img/logo.webp" alt="Bridgeview Soccer Academy" width="46" height="46">
+    <span><strong>Bridgeview</strong><span>Soccer Academy</span></span>
+  </a>
+  <a class="ty-phone" href="tel:+17186661141">📞 +1 (718) 666-1141</a>
+</header>
+
+<main class="ty-wrap">
+  <div class="ty-emoji">🥅⚽</div>
+  <h1 class="ty-headline">GOOOAL!</h1>
+  <p class="ty-lead">Your spot is reserved!</p>
+
+  <span class="ty-gift">🎁 $1,000 Brooklyn FC training day — included</span>
+  <p class="ty-phone-line">Questions? Call <a href="tel:+17186661141">+1 (718) 666-1141</a></p>
+
+  <div class="next-steps">
+    <h3>What happens next</h3>
+    <ol>
+      <li><b>Within 24 hours</b> — our soccer expert calls you. 10 minutes: we ask about your child, you ask us anything.</li>
+      <li><b>We pick a time</b> that fits your week. Evenings and weekend mornings available.</li>
+      <li><b>Your child plays a real 60-minute class.</b> You watch from the sideline.</li>
+    </ol>
+    <p>Didn't hear from us? Call <a href="tel:+17186661141">+1 (718) 666-1141</a> — we'll sort it out.</p>
+  </div>
+
+  <div class="ty-back-row">
+    <a class="btn btn-ghost" href="/">← Back to Bridgeview Soccer Academy</a>
+  </div>
+</main>
+
+<script>
+/* Conversion guard: only a real form submission counts (not a direct hit or F5). */
+(function () {
+  var legit = false;
+  try {
+    legit = sessionStorage.getItem('bsa_submitted') === '1';
+  } catch (e) {
+    legit = true; // Safari private mode — better to over-count than lose a lead
+  }
+
+  // Personalise the greeting
+  try {
+    var name = sessionStorage.getItem('bsa_name') || '';
+    if (name) {
+      var h = document.querySelector('.ty-headline');
+      if (h) h.textContent = 'GOOOAL, ' + name + '!';
+    }
+  } catch (e) {}
+
+  if (!legit) return; // show the page, but don't count a conversion
+
+  // One-shot: F5 won't fire a second conversion
+  try { sessionStorage.removeItem('bsa_submitted'); } catch (e) {}
+
+  if (window.gtag) {
+    gtag('event', 'generate_lead', {
+      event_category: 'funnel',
+      event_label: 'quiz_submitted',
+      value: 25,
+      currency: 'USD'
+    });
+  }
+  if (window.fbq) {
+    fbq('track', 'Lead', { value: 25, currency: 'USD' });
+  }
+})();
+</script>
+
+</body></html>

@@ -54,13 +54,14 @@ bridgeview-landing/
 
 ## Lead capture — booking quiz (Netlify Forms → Kommo)
 
-The booking quiz **is wired to [Netlify Forms](https://docs.netlify.com/forms/setup/)**.
-It is a real `<form name="evaluation-booking" data-netlify="true">` and is submitted
-over AJAX (`fetch`) so the in-page "thank-you" screen still works.
+The booking quiz **is wired to [Netlify Forms](https://docs.netlify.com/forms/setup/)**
+and to **Kommo** (via the Netlify Function below). It is a real
+`<form name="evaluation-booking" data-netlify="true">`. On submit it POSTs to both
+endpoints (with a hard 4 s timeout), then **redirects to `/thank-you`** — a separate
+URL so ad platforms can count the conversion by page load.
 
-The quiz is a **4-step gamified flow** (age → experience → location → contact)
-with a soccer-field progress bar, a success screen, and a post-submit **mini-game**
-(see below). Fields sent with every submission:
+The quiz is a **4-step flow** (age → experience → location → contact) with a
+soccer-field progress bar. Fields sent with every submission:
 
 | Field name    | Source                                  |
 |---------------|-----------------------------------------|
@@ -72,16 +73,16 @@ with a soccer-field progress bar, a success screen, and a post-submit **mini-gam
 | `location`    | Step 3 answer, e.g. `yes` (filled by JS) |
 | `bot-field`   | Honeypot (hidden anti-spam)             |
 
-On submit the code also fires a **Facebook Pixel `Lead` event** if a pixel is
-present on the page (`window.fbq`) — guarded, so it's a no-op until you install one.
+### Thank-you page & conversion tracking
 
-### Post-submit mini-game (free-ball code word)
-
-After a successful submission the success screen offers a 1-question football
-mini-game. Answering correctly (the answer is **11 players**) reveals a **code word**
-(`ELEVEN`). The parent is told to mention at the Evaluation Lesson that they passed
-the quiz and say the code word to claim a **free ball** for their child. This is
-purely client-side engagement and is not re-submitted to the CRM.
+After submission the visitor lands on **`thank-you.html`** (served at `/thank-you`,
+`noindex`). Analytics are split so conversions aren't double-counted: the funnel
+events (`scroll_to_quiz`, `quiz_start`, `quiz_step_experience`, `quiz_step_location`,
+`quiz_contact_form`, plus Pixel `ViewContent`/`InitiateCheckout`) fire on the main
+page, while the **`generate_lead`** (GA4) and **`Lead`** (Pixel) conversion fires
+**only on `/thank-you`**, guarded by a `sessionStorage` flag so direct hits and F5
+don't create phantom conversions. The Meta Pixel loader is present as a commented
+block on both pages — uncomment and drop in the ID when the targeter provides it.
 
 **What works automatically once deployed to Netlify:**
 
